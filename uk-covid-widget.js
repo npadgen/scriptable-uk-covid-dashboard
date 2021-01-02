@@ -53,9 +53,18 @@ function createWidget(data) {
   return widget;
 }
 
-async function getData(objectID) {
+function copyIfNotNull(to, from, prop) {
+  let fromProp = from[prop];
+  if (fromProp != null) {
+    to[prop] = fromProp;
+  }
+}
+
+async function getData(config) {
+  let areaType = config.areaType;
+  let areaCode = config.areaCode;
   let req = new Request(
-    `https://api.coronavirus.data.gov.uk/v2/data?areaType=msoa&areaCode=${objectID}&metric=newCasesBySpecimenDateRollingSum&metric=newCasesBySpecimenDateRollingRate&metric=newCasesBySpecimenDateChange&metric=newCasesBySpecimenDateChangePercentage&metric=newCasesBySpecimenDateDirection&format=json`
+    `https://api.coronavirus.data.gov.uk/v2/data?areaType=${areaType}&areaCode=${areaCode}&metric=newCasesBySpecimenDateRollingSum&metric=newCasesBySpecimenDateRollingRate&metric=newCasesBySpecimenDateChange&metric=newCasesBySpecimenDateChangePercentage&metric=newCasesBySpecimenDateDirection&format=json`
   );
   let response = await req.loadJSON();
   return response.body;
@@ -63,13 +72,23 @@ async function getData(objectID) {
 
 if (config.runsInApp) {
   // Demo for in-app testing
-  let data = await getData("E02003376");
+  let widgetConfig = {
+    areaType: "msoa",
+    areaCode: "E02003376",
+  };
+  let data = await getData(widgetConfig);
   let widget = createWidget(data);
   widget.presentSmall();
 } else {
   // The real deal
-  let objectID = args.widgetParameter;
-  let data = await getData(objectID);
+  let widgetConfig = {
+    areaType: "",
+    areaCode: "",
+  };
+  let areaParams = JSON.parse(args.widgetParameter);
+  copyIfNotNull(widgetConfig, areaParams, "areaType");
+  copyIfNotNull(widgetConfig, areaParams, "areaCode");
+  let data = await getData(widgetConfig);
   let widget = createWidget(data);
   Script.setWidget(widget);
 }
