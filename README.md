@@ -6,7 +6,7 @@ This is a small Scriptable iOS widget to show the latest UK government COVID-19 
 
 This widget displays the number of cases per 100,000.
 
-![Screenshot of the infections widget showing a rate of 124 per 100,000, descending, for the United Kingdom on 2021-02-16](docs/infections-widget.jpg)
+![Screenshot of the infections widget showing a rate of 124 per 100,000, descending, for the United Kingdom on 2021-02-16](docs/infections-widget.png)
 
 * Paste the contents of `uk-covid-widget.js` into Scriptable as a new script.  Call it "UK Coronavirus Rate".
 * Find your local MSOA area by going to https://coronavirus.data.gov.uk/details/download .  Pick MSOA from the Area Type and drill down to the area of interest.  Pick one of the metrics (it doesn't matter which).
@@ -19,7 +19,7 @@ This widget displays the number of cases per 100,000.
 
 This widget displays the number of 1st and 2nd doses which have been delivered in total and since yesterday.
 
-![Screenshot of the vaccinations widget showing the number of 1st and 2nd doses delivered across the UK to 2021-02-20](docs/vaccinations-widget.jpg)
+![Screenshot of the vaccinations widget showing the number of 1st and 2nd doses delivered across the UK to 2021-02-20](docs/vaccinations-widget.png)
 
  * Paste the contents of `uk-covid-vaccinations-widget.js` into Scriptable as a new script. Call it "UK COVID Vaccinations".
  * Add a new small Scriptable widget to your home page.
