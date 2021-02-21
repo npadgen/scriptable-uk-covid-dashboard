@@ -120,3 +120,4 @@ if (config.runsInApp) {
   let widget = createWidget(data);
   Script.setWidget(widget);
 }
+
