@@ -1,6 +1,27 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-gray; icon-glyph: user-md;
+
+/*
+
+ Usage:
+
+   This script is designed to be run as a Small widget within Scriptable
+   (https://scriptable.app).
+
+   To configure:
+
+   - Go to https://coronavirus.data.gov.uk/details/download
+   - Select the area that you are interested in
+   - Select a metric (it doesn't matter which)
+   - Copy the Permanent Link, which is in a box towards the end of the page
+   - Create a new Small Scriptable widget on your iOS device
+   - Tap and hold on the widget and choose Edit Widget
+   - In the edit dialog, paste that link into the Parameter
+
+   (For the advanced user: only `areaType` and `areaCode` are used from the Permanent Link URL)
+
+ */
 function createWidget(data) {
   let infectionRate = data[0].newCasesBySpecimenDateRollingRate;
   let infectionDirection = data[0].newCasesBySpecimenDateDirection;
@@ -101,7 +122,6 @@ async function getData(config) {
 if (config.runsInApp) {
   // Demo for in-app testing
   let widgetConfig = getConfig(
-    //"https://foo.bar/?areaType=msoa&areaCode=E02003376"
     "https://api.coronavirus.data.gov.uk/v2/data?areaType=overview&metric=newCasesBySpecimenDateDirection&format=json"
   );
   let data = await getData(widgetConfig);

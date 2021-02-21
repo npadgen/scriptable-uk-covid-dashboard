@@ -1,6 +1,21 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-gray; icon-glyph: user-md;
+
+/*
+
+ Usage:
+
+   This script is designed to be run as a Small widget within Scriptable
+   (https://scriptable.app).
+
+   To configure:
+
+   - Create a new Small Scriptable widget on your iOS device
+   - Tap and hold on the widget and choose Edit Widget
+   - In the Parameter, enter one of the values "uk", "england", "scotland", "wales" or "northern ireland"
+
+ */
 function createWidget(data) {
   let dose1Change = data[0].newPeopleVaccinatedFirstDoseByPublishDate;
   let dose1Total = data[0].cumPeopleVaccinatedFirstDoseByPublishDate;
