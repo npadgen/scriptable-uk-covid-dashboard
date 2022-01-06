@@ -16,124 +16,163 @@
    - In the Parameter, enter one of the values "uk", "england", "scotland", "wales" or "northern ireland"
 
  */
-function createWidget(data) {
-  let dose1Change = data[0].cumPeopleVaccinatedFirstDoseByVaccinationDate - data[1].cumPeopleVaccinatedFirstDoseByVaccinationDate;
-  let dose1Total = data[0].cumPeopleVaccinatedFirstDoseByVaccinationDate;
-  let dose2Change = data[0].cumPeopleVaccinatedSecondDoseByVaccinationDate - data[1].cumPeopleVaccinatedSecondDoseByVaccinationDate;
-  let dose2Total = data[0].cumPeopleVaccinatedSecondDoseByVaccinationDate;
-  let dose3Change = data[0].cumPeopleVaccinatedThirdInjectionByVaccinationDate - data[1].cumPeopleVaccinatedThirdInjectionByVaccinationDate;
-  let dose3Total = data[0].cumPeopleVaccinatedThirdInjectionByVaccinationDate;
-  let statsDate = data[0].date;
-
-  let widget = new ListWidget();
-
-  let title = widget.addText("💉" + data[0].areaName);
-  title.font = Font.boldSystemFont(16);
-  title.minimumScaleFactor = 0.6;
-  title.lineLimit = 2;
-
-  let subTitle = widget.addText(statsDate);
-  subTitle.font = Font.regularSystemFont(12);
-  subTitle.textColor = Color.gray();
-
-  widget.addSpacer();
-
-  let dose1 = widget.addText(dose1Total.toLocaleString("en-GB"));
-  dose1.font = Font.regularSystemFont(20);
-  dose1.leftAlignText();
-  dose1.textColor = Color.green();
-
-  let dose1Delta = "";
-  if (dose1Change > 0) {
-    dose1Delta = " ⬆︎ " + dose1Change.toLocaleString("en-GB"); 
+   function createWidget(data, widgetConfig) {
+    let dose1Change = "";
+    let dose1Total = "";
+    let dose2Change = "";
+    let dose2Total = "";
+    let dose3Change = "";
+    let dose3Total = "";
+     if (widgetConfig.areaType === "msoa") {
+      dose1Change = data[0].cumPeopleVaccinatedFirstDoseByVaccinationDate - data[1].cumPeopleVaccinatedFirstDoseByVaccinationDate;
+      dose1Total = data[0].cumPeopleVaccinatedFirstDoseByVaccinationDate;
+      dose2Change = data[0].cumPeopleVaccinatedSecondDoseByVaccinationDate - data[1].cumPeopleVaccinatedSecondDoseByVaccinationDate;
+      dose2Total = data[0].cumPeopleVaccinatedSecondDoseByVaccinationDate;
+      dose3Change = data[0].cumPeopleVaccinatedThirdInjectionByVaccinationDate - data[1].cumPeopleVaccinatedThirdInjectionByVaccinationDate;
+      dose3Total = data[0].cumPeopleVaccinatedThirdInjectionByVaccinationDate;
+    } else {
+      dose1Change = data[0].cumPeopleVaccinatedFirstDoseByPublishDate - data[1].cumPeopleVaccinatedFirstDoseByPublishDate;
+      dose1Total = data[0].cumPeopleVaccinatedFirstDoseByPublishDate;
+      dose2Change = data[0].cumPeopleVaccinatedSecondDoseByPublishDate - data[1].cumPeopleVaccinatedSecondDoseByPublishDate;
+      dose2Total = data[0].cumPeopleVaccinatedSecondDoseByPublishDate;
+      dose3Change = data[0].cumPeopleVaccinatedThirdInjectionByPublishDate - data[1].cumPeopleVaccinatedThirdInjectionByPublishDate;
+      dose3Total = data[0].cumPeopleVaccinatedThirdInjectionByPublishDate;
+  
+    }
+    let statsDate = data[0].date;
+  
+    let widget = new ListWidget();
+  
+    let title = widget.addText("💉" + data[0].areaName);
+    title.font = Font.boldSystemFont(16);
+    title.minimumScaleFactor = 0.6;
+    title.lineLimit = 2;
+  
+    let subTitle = widget.addText(statsDate);
+    subTitle.font = Font.regularSystemFont(12);
+    subTitle.textColor = Color.gray();
+  
+    widget.addSpacer();
+  
+    let dose1 = getDoseStack(widget, dose1Total, dose1Change, 1, Color.green());
+    let dose2 = getDoseStack(widget, dose2Total, dose2Change, 2, Color.cyan());
+    let dose3 = getDoseStack(widget, dose3Total, dose3Change, 3, Color.orange());
+    
+    widget.addSpacer();
+  
+  
+    return widget;
+  }
+  
+  function getDeltaString(delta) {
+    let deltaText = "";
+    if (delta > 0) {
+      deltaText = " ⬆︎ " + delta.toLocaleString("en-GB"); 
+    } else {
+      deltaText = " ⬌ ";
+    }
+    return deltaText
+  }
+  
+  function getDoseText(widget, total, delta) {
+    let deltaText = getDeltaString(delta);
+  
+    let doseText = widget.addText(total.toLocaleString("en-GB") + " (" + deltaText + ")");
+    doseText.font = Font.regularSystemFont(20);
+    doseText.leftAlignText();
+    return doseText;
+  }
+  
+  function getDoseStack(widget, total, delta, num, colour) {
+    let doseStack = widget.addStack();
+    doseStack.bottomAlignContent();
+    
+    let labelText = doseStack.addText(num.toLocaleString("en-GB") + " ");
+    labelText.font = Font.regularSystemFont(10);
+    
+    let doseText = doseStack.addText(total.toLocaleString("en-GB"));
+    doseText.font = Font.regularSystemFont(20);
+    doseText.textColor = colour;
+    doseText.leftAlignText();
+    doseText.minimumScaleFactor = 0.4
+    doseText.lineLimit = 1;
+    
+    doseStack.addSpacer()
+    
+    let deltaText = doseStack.addText(getDeltaString(delta));
+    deltaText.font = Font.regularSystemFont(10);
+    deltaText.leftAlignText();
+    
+    return doseStack;
+   }
+  
+  function copyIfNotNull(to, from, prop) {
+    let fromProp = from[prop];
+    if (fromProp != null) {
+      to[prop] = fromProp;
+    }
+  }
+  
+  function getParameterByName(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, "\\$&");
+    console.log(url);
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+    if (!results) return "";
+    if (!results[2]) return "";
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+  
+  function getConfig(widgetParameter) {
+    // widgetParameter can either be a json object with `areaType` and `areaName`,
+    // or it can be the URL from https://coronavirus.data.gov.uk/details/download
+    let widgetConfig = {
+      areaType: "",
+      areaName: "",
+    };
+    if (widgetParameter === "" || widgetParameter.toLowerCase() === "overview" || widgetParameter.toLowerCase() === "uk") {
+      widgetConfig["areaType"] = "overview";
+      widgetConfig["areaCode"] = "";
+    } else if (widgetParameter[0] === "{") {
+      areaParams = JSON.parse(widgetParameter);
+      copyIfNotNull(widgetConfig, areaParams, "areaType");
+      copyIfNotNull(widgetConfig, areaParams, "areaCode");
+    } else {
+      widgetConfig.areaType = getParameterByName("areaType", widgetParameter);
+      widgetConfig.areaCode = getParameterByName("areaCode", widgetParameter);
+    }
+    return widgetConfig;
+  }
+  
+  async function getData(config) {
+    let areaType = config.areaType;
+    let areaCode = config.areaCode;
+    let dateSpec = config.areaType === "msoa" ? "Vaccination" : "Publish";
+    let req = new Request(
+      `https://api.coronavirus.data.gov.uk/v2/data?areaType=${areaType}&areaCode=${areaCode}` +
+      `&metric=cumPeopleVaccinatedFirstDoseBy${dateSpec}Date` +
+      `&metric=cumPeopleVaccinatedSecondDoseBy${dateSpec}Date` +
+      `&metric=cumPeopleVaccinatedThirdInjectionBy${dateSpec}Date` +
+      "&format=json"
+    );
+//    console.log(req.url);
+    let response = await req.loadString();
+//    console.log(response);
+    return JSON.parse(response).body;
+  }
+  
+  if (config.runsInApp) {
+    // Demo for in-app testing
+    let widgetConfig = getConfig('{"areaType": "msoa", "areaCode": "E02003376"}');
+//    let widgetConfig = getConfig('{"areaType": "overview", "areaCode": ""}');
+    let data = await getData(widgetConfig);
+    let widget = createWidget(data, widgetConfig);
+    widget.presentSmall();
   } else {
-    dose1Delta = " ⬌ (unchanged)";
+    // The real deal
+    let widgetConfig = getConfig(args.widgetParameter);
+    let data = await getData(widgetConfig);
+    let widget = createWidget(data, widgetConfig);
+    Script.setWidget(widget);
   }
-  let dose1DeltaText = widget.addText(dose1Delta);
-  dose1DeltaText.font = Font.regularSystemFont(10);
-  dose1DeltaText.leftAlignText();
-  dose1DeltaText.textColour = Color.green();
-
-  let dose2 = widget.addText(dose2Total.toLocaleString("en-GB"));
-  dose2.font = Font.regularSystemFont(20);
-  dose2.centerAlignText;
-  dose2.textColor = Color.cyan();
-
-  let dose2Delta = "";
-  if (dose2Change > 0) {
-    dose2Delta = " ⬆︎ " + dose2Change.toLocaleString("en-GB"); 
-  } else {
-    dose2Delta = " ⬌ (unchanged)";
-  }
-  let dose2DeltaText = widget.addText(dose2Delta);
-  dose2DeltaText.font = Font.regularSystemFont(10);
-  dose2DeltaText.leftAlignText();
-  dose2DeltaText.textColour = Color.cyan();
-
-  widget.addSpacer();
-
-
-  return widget;
-}
-
-function copyIfNotNull(to, from, prop) {
-  let fromProp = from[prop];
-  if (fromProp != null) {
-    to[prop] = fromProp;
-  }
-}
-
-function getParameterByName(name, url = window.location.href) {
-  name = name.replace(/[\[\]]/g, "\\$&");
-  console.log(url);
-  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-    results = regex.exec(url);
-  if (!results) return "";
-  if (!results[2]) return "";
-  return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
-
-function getConfig(widgetParameter) {
-  // widgetParameter can either be a json object with `areaType` and `areaName`,
-  // or it can be the URL from https://coronavirus.data.gov.uk/details/download
-  let widgetConfig = {
-    areaType: "",
-    areaName: "",
-  };
-  if (widgetParameter === "" || widgetParameter.toLowerCase() === "overview" || widgetParameter.toLowerCase() === "uk") {
-    widgetConfig["areaType"] = "msoa";
-    widgetConfig["areaCode"] = "E02003376";
-  } else {
-    widgetConfig.areaType = getParameterByName("areaType", widgetParameter);
-    widgetConfig.areaCode = getParameterByName("areaCode", widgetParameter);
-  }
-  return widgetConfig;
-}
-
-async function getData(config) {
-  let areaType = config.areaType;
-  let areaCode = config.areaCode;
-  let req = new Request(
-    `https://api.coronavirus.data.gov.uk/v2/data?areaType=${areaType}&areaCode=${areaCode}` +
-    "&metric=cumPeopleVaccinatedFirstDoseByVaccinationDate" +
-    "&metric=cumPeopleVaccinatedSecondDoseByVaccinationDate" +
-    "&metric=cumPeopleVaccinatedThirdInjectionByVaccinationDate" +
-    "&format=json"
-  );
-  let response = await req.loadJSON();
-  return response.body;
-}
-
-if (config.runsInApp) {
-  // Demo for in-app testing
-  let widgetConfig = getConfig("");
-  let data = await getData(widgetConfig);
-  let widget = createWidget(data);
-  widget.presentSmall();
-} else {
-  // The real deal
-  let widgetConfig = getConfig(args.widgetParameter);
-  let data = await getData(widgetConfig);
-  let widget = createWidget(data);
-  Script.setWidget(widget);
-}
+  
