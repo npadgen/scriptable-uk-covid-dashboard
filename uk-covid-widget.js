@@ -49,7 +49,7 @@ function createWidget(data) {
     infectionVal += " ⬌";
   }
   let infections = widget.addText(infectionVal);
-  infections.font = Font.regularSystemFont(40);
+  infections.font = Font.regularSystemFont(infectionRate > 1000 ? 32 : 40);
   infections.centerAlignText();
   if (infectionDirection === "UP") {
     infections.textColor = Color.red();
