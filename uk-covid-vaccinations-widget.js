@@ -17,10 +17,12 @@
 
  */
 function createWidget(data) {
-  let dose1Change = data[0].newPeopleVaccinatedFirstDoseByPublishDate;
-  let dose1Total = data[0].cumPeopleVaccinatedFirstDoseByPublishDate;
-  let dose2Change = data[0].newPeopleVaccinatedSecondDoseByPublishDate;
-  let dose2Total = data[0].cumPeopleVaccinatedSecondDoseByPublishDate;
+  let dose1Change = data[0].cumPeopleVaccinatedFirstDoseByVaccinationDate - data[1].cumPeopleVaccinatedFirstDoseByVaccinationDate;
+  let dose1Total = data[0].cumPeopleVaccinatedFirstDoseByVaccinationDate;
+  let dose2Change = data[0].cumPeopleVaccinatedSecondDoseByVaccinationDate - data[1].cumPeopleVaccinatedSecondDoseByVaccinationDate;
+  let dose2Total = data[0].cumPeopleVaccinatedSecondDoseByVaccinationDate;
+  let dose3Change = data[0].cumPeopleVaccinatedThirdInjectionByVaccinationDate - data[1].cumPeopleVaccinatedThirdInjectionByVaccinationDate;
+  let dose3Total = data[0].cumPeopleVaccinatedThirdInjectionByVaccinationDate;
   let statsDate = data[0].date;
 
   let widget = new ListWidget();
@@ -99,23 +101,23 @@ function getConfig(widgetParameter) {
     areaName: "",
   };
   if (widgetParameter === "" || widgetParameter.toLowerCase() === "overview" || widgetParameter.toLowerCase() === "uk") {
-    widgetConfig["areaType"] = "overview";
+    widgetConfig["areaType"] = "msoa";
+    widgetConfig["areaCode"] = "E02003376";
   } else {
-    widgetConfig["areaType"] = "nation";
-    widgetConfig["areaName"] = widgetParameter;
+    widgetConfig.areaType = getParameterByName("areaType", widgetParameter);
+    widgetConfig.areaCode = getParameterByName("areaCode", widgetParameter);
   }
   return widgetConfig;
 }
 
 async function getData(config) {
   let areaType = config.areaType;
-  let areaName = config.areaName;
+  let areaCode = config.areaCode;
   let req = new Request(
-    `https://api.coronavirus.data.gov.uk/v2/data?areaType=${areaType}&areaName=${areaName}` +
-    "&metric=cumPeopleVaccinatedFirstDoseByPublishDate" +
-    "&metric=newPeopleVaccinatedFirstDoseByPublishDate" +
-    "&metric=cumPeopleVaccinatedSecondDoseByPublishDate" +
-    "&metric=newPeopleVaccinatedSecondDoseByPublishDate" +
+    `https://api.coronavirus.data.gov.uk/v2/data?areaType=${areaType}&areaCode=${areaCode}` +
+    "&metric=cumPeopleVaccinatedFirstDoseByVaccinationDate" +
+    "&metric=cumPeopleVaccinatedSecondDoseByVaccinationDate" +
+    "&metric=cumPeopleVaccinatedThirdInjectionByVaccinationDate" +
     "&format=json"
   );
   let response = await req.loadJSON();
@@ -135,4 +137,3 @@ if (config.runsInApp) {
   let widget = createWidget(data);
   Script.setWidget(widget);
 }
-
